@@ -9,7 +9,7 @@
     User user = (User) session.getAttribute("currentUser");
     if (user == null) {
         response.sendRedirect("login.jsp");
-    } else
+    }
 %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
@@ -23,6 +23,11 @@
         <style>
             .banner-background{
                 clip-path: polygon(50% 0%, 100% 0, 100% 35%, 100% 99%, 90% 83%, 46% 100%, 20% 90%, 0 95%, 0% 35%, 0 0);
+            }
+            body{
+                background: url(img/bg.jpg);
+                background-size: cover;
+                background-attachment: fixed;
             }
         </style>
     </head>
@@ -92,12 +97,12 @@
 
         <!--Main body of the page-->
         <main>
-            <div class="container">
+            <div class="container my-4">
                 <div class="row mt-4    ">
                     <div class="col-md-4">
                         <!--catogries-->
                         <div class="list-group">
-                            <a href="#" class="list-group-item list-group-item-action active" aria-current="true">
+                            <a href=" " onclick="getPost(0, this)" class="c-link list-group-item list-group-item-action active" aria-current="true">
                                 All Posts
                             </a>
                             <!--categories-->
@@ -106,14 +111,21 @@
                                 ArrayList<Category> list1 = d.getCategories();
                                 for (Category cc : list1) {
                             %>
-                            <a href="#" class="list-group-item list-group-item-action"><%= cc.getName()%></a>
+                            <a href="#" onclick="getPost(<%= cc.getCid()%>, this)" class="c-link list-group-item list-group-item-action"><%= cc.getName()%></a>
                             <%
                                 }
                             %>
                         </div>
                     </div>
-                    <div class="col-md-8">
+                    <div class="col-md-8" >
                         <!--post-->
+                        <div class="container text-center" id="loader">
+                            <i class="fa fa-refresh fa-5x fa-spin"></i>
+                            <h3 class="mt-2">Loading....</h3>
+                        </div>
+                        <div class="container-fluid" id="post-container">
+
+                        </div>
                     </div>
                 </div>
             </div>
@@ -300,23 +312,23 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js" integrity="sha384-ODmDIVzN+pFdexxHEHFBQH3/9/vQ9uori45z4JjnFsRydbmQbmL5t1tQ0culUzyK" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
         <script>
-            $(document).ready(function () {
-                let editStatus = false;
-                $('#edit-profile-button').click(function () {
-                    if (editStatus == = false) {
-                        $("#profile-details").hide();
-                        $("#profile-edit").show();
-                        editStatus = true;
-                        $(this).text("Back");
-                    } else {
-                        $("#profile-details").show();
-                        $("#profile-edit").hide();
-                        editStatus = false;
-                        $(this).text("Edit");
-                    }
+                                $(document).ready(function () {
+                                    let editStatus = false;
+                                    $('#edit-profile-button').click(function () {
+                                        if (editStatus === false) {
+                                            $("#profile-details").hide();
+                                            $("#profile-edit").show();
+                                            editStatus = true;
+                                            $(this).text("Back");
+                                        } else {
+                                            $("#profile-details").show();
+                                            $("#profile-edit").hide();
+                                            editStatus = false;
+                                            $(this).text("Edit");
+                                        }
 
-                })
-            });
+                                    })
+                                });
         </script>
         <!--now add post js-->
         <script>
@@ -348,6 +360,33 @@
                     });
                 });
             });
+        </script>
+        <!--loading post using ajax-->
+        <script>
+
+            function getPost(catId, temp) {
+                $("#loader").show();
+                $("#post-container").hide();
+                $(".c-link").removeClass('active');
+                $.ajax({
+                    url: "load_posts.jsp",
+                    data: {cid: catId},
+                    success: function (data, textStatus, jqXHR) {
+                        //console.log(data);
+                        $("#loader").hide();
+                        $("#post-container").show();
+                        $("#post-container").html(data);
+                        $(temp).addClass('active');
+
+                    }
+                })
+            }
+            $(document).ready(function (e) {
+                let allPostRef=$('.c-link')[0]
+                getPost(0,allPostRef);
+
+            })
+
         </script>
         <script src="js/myjs.js" type="text/javascript"></script>
     </body>
